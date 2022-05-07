@@ -6,6 +6,9 @@ use App\Mail\NovaTarefaMail;
 use App\Models\Tarefa;
 use Illuminate\Http\Request;
 use App\Http\Requests\TarefaRequest;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\TarefasExport;
+use PDF;
 
 class TarefaController extends Controller
 {
@@ -96,5 +99,23 @@ class TarefaController extends Controller
         }
         $tarefa->delete();
         return redirect()->route('tarefa.index');
+    }
+
+    public function exportacao($extensao)
+    {
+        if (!in_array($extensao, ['xlsx','pdf','csv']) ){
+            throw new \ErrorException('Extensoes aceitas sao apenas xlsx e csv e pdf');
+        }
+        $nomeArquivo = 'lista_de_tarefas.'. $extensao;
+        return Excel::download(new TarefasExport, $nomeArquivo);
+    }
+
+    public function exportar()
+    {
+        $tarefas = auth()->user()->tarefas()->get();
+        $pdf = PDF::loadView('tarefa.pdf', ['tarefas' => $tarefas]);
+        $pdf->setPaper('A4', 'landscape');
+        //return $pdf->download('lista_de_tarefas.pdf');
+        return $pdf->stream('lista_de_tarefas.pdf');
     }
 }

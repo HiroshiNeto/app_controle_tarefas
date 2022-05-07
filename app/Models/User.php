@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Notification\RedefinirSenhaNotification;
+use App\Models\Tarefa;
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
@@ -43,5 +44,10 @@ class User extends Authenticatable
 
     public function sendPasswordResetNotification($token) {
         $this->notify(new RedefinirSenhaNotification($token, $this->email, $this->name));
+    }
+
+    public function tarefas() 
+    {
+        return $this->hasMany(Tarefa::class);
     }
 }
